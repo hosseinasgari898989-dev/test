@@ -6,19 +6,19 @@
   "background_color": "#070307",
   "theme_color": "#ff174d",
   "orientation": "portrait",
-  "description": "Poppy Playtime fan archive with chapters, characters, mysteries and releases.",
+  "description": "Poppy Playtime fan archive.",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "src": "icon-192.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
