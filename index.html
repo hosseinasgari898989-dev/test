@@ -2,298 +2,472 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>تست ورود با اثر انگشت</title>
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Vazirmatn,system-ui,Tahoma,sans-serif;
-    background:linear-gradient(135deg,#0a0508,#1a0a10 50%,#0a0508);
-    color:#fff;min-height:100vh;padding:20px;
-    display:flex;align-items:center;justify-content:center}
-  .box{max-width:460px;width:100%;background:rgba(20,10,15,.9);
-    border:1px solid rgba(255,60,100,.3);border-radius:20px;
-    padding:26px 22px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
-  h1{margin:0 0 6px;font-size:18px;
-    background:linear-gradient(135deg,#ff4b6e,#ff174d);
-    -webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;
-    font-family:Oswald,Vazirmatn,sans-serif;letter-spacing:1px}
-  .sub{color:#a899a0;font-size:12px;margin:0 0 20px;line-height:1.7}
-  button{width:100%;padding:14px;border:none;border-radius:12px;
-    font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;
-    transition:.2s;margin-bottom:10px}
-  .primary{background:linear-gradient(135deg,#ff174d,#ff4b6e);color:#fff;
-    box-shadow:0 8px 25px rgba(255,23,77,.35)}
-  .primary:hover:not(:disabled){transform:translateY(-2px)}
-  .primary:disabled{opacity:.4;cursor:not-allowed}
-  .secondary{background:transparent;color:#ff6a88;
-    border:1px solid rgba(255,75,110,.4)}
-  .danger{background:transparent;color:#ff6a88;
-    border:1px solid rgba(255,75,110,.4);font-size:12px;padding:10px}
-  #log{margin-top:14px;padding:12px;background:rgba(0,0,0,.35);
-    border:1px solid rgba(255,60,100,.15);border-radius:12px;
-    font-family:monospace;font-size:11px;line-height:1.8;
-    max-height:300px;overflow-y:auto;display:none;direction:ltr;text-align:left}
-  #log.show{display:block}
-  #log .ok{color:#4bff88}
-  #log .err{color:#ff6a88}
-  #log .info{color:#c4aeb5}
-  #userBox{margin-top:14px;padding:14px;border-radius:12px;
-    background:linear-gradient(135deg,rgba(255,23,77,.15),rgba(255,75,110,.08));
-    border:1px solid rgba(255,75,110,.4);display:none}
-  #userBox.show{display:block}
-  #userBox .lbl{font-size:11px;color:#a899a0;margin-bottom:6px}
-  #userBox .id{font-size:22px;font-weight:900;color:#fff;
-    font-family:Oswald,sans-serif;letter-spacing:2px}
+/* ---------- base ---------- */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{
+  background:radial-gradient(1200px 600px at 50% -10%,#3a0a17 0%,#14060a 45%,#0a0407 100%) fixed;
+  color:#f3e9ec;
+  font-family:Vazirmatn,Tahoma,"Segoe UI",system-ui,sans-serif;
+  padding:24px 14px 60px;
+  display:flex;justify-content:center;
+}
+.card{
+  width:100%;max-width:460px;
+  background:rgba(20,8,12,.72);
+  border:1px solid rgba(255,45,85,.28);
+  border-radius:28px;
+  padding:26px 20px;
+}
+h1{margin:0 0 6px;font-size:22px;color:#ff3d63;font-weight:800}
+.sub{color:#9a8a8f;font-size:14px;margin-bottom:22px}
+
+/* ---------- buttons ---------- */
+.btn{
+  display:block;width:100%;border:0;border-radius:18px;
+  padding:17px 14px;margin:0 0 14px;
+  font:inherit;font-size:16px;font-weight:700;cursor:pointer;color:#fff;
+}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.primary{background:linear-gradient(135deg,#ff1f55,#ff4a6b);box-shadow:0 8px 26px rgba(255,31,85,.35)}
+.ghost{background:transparent;border:1px solid rgba(255,45,85,.35);color:#ff5d7c;font-weight:600}
+.small{padding:12px;font-size:14px;margin:10px 0 0}
+
+/* ---------- sections ---------- */
+.stitle{margin:24px 0 10px;color:#ffb3c1;font-size:15px;font-weight:700}
+.hint{color:#9a8a8f;font-size:13px;line-height:1.8;margin:0 0 12px}
+.inp{
+  width:100%;background:#0d0508;border:1px solid rgba(255,45,85,.3);
+  border-radius:14px;color:#fff;padding:14px;font-size:16px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  direction:ltr;text-align:center;letter-spacing:1px;margin-bottom:12px;
+  text-transform:uppercase;
+}
+.inp:focus{outline:none;border-color:#ff3d63}
+
+/* ---------- user box ---------- */
+.userbox{
+  border:1px solid rgba(255,45,85,.35);
+  background:rgba(120,15,40,.25);
+  border-radius:20px;padding:18px;margin:6px 0 18px;
+}
+.userbox .lbl{color:#b9a8ad;font-size:14px}
+.userbox .uid{font-size:34px;font-weight:800;color:#fff;margin-top:8px;direction:ltr;text-align:right}
+
+/* ---------- recovery box ---------- */
+.recbox{
+  border:1px dashed #fbbf24;background:rgba(251,191,36,.07);
+  border-radius:18px;padding:16px;margin:0 0 18px;
+}
+.recnote{font-size:14px;line-height:1.9;color:#fde68a}
+.reccode{
+  direction:ltr;text-align:center;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:18px;font-weight:800;color:#fff3c4;letter-spacing:1px;
+  word-break:break-all;margin:12px 0;user-select:all;
+}
+
+/* ---------- log ---------- */
+.log{
+  background:#0b0407;border:1px solid rgba(255,45,85,.22);
+  border-radius:18px;padding:16px;margin-top:20px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:14px;line-height:1.9;max-height:360px;min-height:64px;overflow:auto;
+  color:#e8dde0;
+}
+.log div{margin:0}
+.log .ok{color:#4ade80}
+.log .err{color:#ff5d7c}
+.log .warn{color:#fbbf24}
 </style>
 </head>
 <body>
-<div class="box">
+<div class="card">
   <h1>🔐 تست ورود با اثر انگشت</h1>
-  <p class="sub">Worker: poppy-auth-api</p>
+  <div class="sub">Worker: poppy-auth-api</div>
 
-  <button class="primary" id="registerBtn">✨ ثبت‌نام جدید</button>
-  <button class="primary" id="loginBtn">🔓 ورود با اثر انگشت</button>
-  <button class="secondary" id="checkBtn">👤 بررسی وضعیت</button>
-  <button class="danger" id="logoutBtn">🚪 خروج</button>
+  <button id="btnRegister" class="btn primary">✨ ثبت‌نام جدید</button>
+  <button id="btnLogin" class="btn primary">🔓 ورود با اثر انگشت</button>
+  <button id="btnMe" class="btn ghost">👤 بررسی وضعیت</button>
+  <button id="btnLogout" class="btn ghost">🚪 خروج</button>
 
-  <div id="userBox">
+  <div id="userBox" class="userbox" hidden>
     <div class="lbl">شما وارد شدید به عنوان:</div>
-    <div class="id" id="userId">-</div>
+    <div class="uid" id="uid"></div>
   </div>
 
-  <div id="log"></div>
+  <div id="recoveryBox" class="recbox" hidden>
+    <div class="recnote" id="recNote"></div>
+    <div class="reccode" id="recCode"></div>
+    <button id="btnCopyRec" class="btn ghost small">📋 کپی کد بازیابی</button>
+  </div>
+
+  <div class="stitle">🔑 ورود با کد بازیابی</div>
+  <p class="hint">اگر اثر انگشت روی این دستگاه کار نمی‌کند یا دستگاه جدید است، با کد بازیابی وارد شو.</p>
+  <input id="recInput" class="inp" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX-XXXXX">
+  <button id="btnRecLogin" class="btn ghost">ورود با کد بازیابی</button>
+
+  <div class="stitle">⚙️ مدیریت حساب (بعد از ورود)</div>
+  <button id="btnAddDevice" class="btn ghost">📲 افزودن این دستگاه به حساب</button>
+  <button id="btnNewRecovery" class="btn ghost">♻️ ساخت کد بازیابی جدید</button>
+
+  <div id="log" class="log"></div>
 </div>
 
 <script>
-(function(){
-  'use strict';
+// ==================================================
+// 1) CONFIG + STORAGE
+// ==================================================
+const API = 'https://poppy-auth-api.hosseinasgari898989.workers.dev';
+const LS_TOKEN = 'poppy_token';
+const LS_CREDS = 'poppy_cred_ids';
 
-  var API = 'https://poppy-auth-api.hosseinasgari898989.workers.dev';
-  var TOKEN_KEY = 'poppy_test_token';
+const $ = (id) => document.getElementById(id);
 
-  var $ = function(id){ return document.getElementById(id); };
-  var log = $('log');
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
-  function logLine(msg, cls){
-    log.classList.add('show');
-    var div = document.createElement('div');
-    div.className = cls || 'info';
-    div.textContent = msg;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
+function getSavedIds() {
+  try {
+    const a = JSON.parse(lsGet(LS_CREDS) || '[]');
+    return Array.isArray(a) ? a.filter((x) => typeof x === 'string') : [];
+  } catch (e) { return []; }
+}
+function rememberCredential(id) {
+  if (!id) return;
+  const ids = getSavedIds().filter((x) => x !== id);
+  ids.unshift(id);
+  lsSet(LS_CREDS, JSON.stringify(ids.slice(0, 10)));
+}
+
+// ==================================================
+// 2) LOG + UI HELPERS
+// ==================================================
+function log(msg, cls) {
+  const d = document.createElement('div');
+  d.setAttribute('dir', 'auto');
+  if (cls) d.className = cls;
+  d.textContent = msg;
+  $('log').appendChild(d);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+
+function setBusy(on) {
+  document.querySelectorAll('button').forEach((b) => { b.disabled = on; });
+}
+
+async function run(fn) {
+  setBusy(true);
+  try { await fn(); }
+  catch (e) { console.error(e); log('خطا: ' + friendlyError(e), 'err'); }
+  finally { setBusy(false); }
+}
+
+function showUser(displayId) {
+  $('uid').textContent = displayId;
+  $('userBox').hidden = false;
+}
+function hideUser() { $('userBox').hidden = true; }
+
+function showRecovery(code, note) {
+  if (!code) {
+    log('⚠️ کد بازیابی ساخته نشد. (فایل SQL را در D1 اجرا کرده‌ای؟)', 'warn');
+    return;
+  }
+  $('recNote').textContent = note || 'این کد بازیابی توست. آن را جای امن ذخیره کن (مثلاً در یادداشت گوشی). فقط همین یک‌بار نشان داده می‌شود.';
+  $('recCode').textContent = code;
+  $('recoveryBox').hidden = false;
+  log('🔑 کد بازیابی ساخته شد. حتماً ذخیره‌اش کن.', 'warn');
+}
+
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); return true; } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  } catch (e) { return false; }
+}
+
+// ==================================================
+// 3) ERRORS (simple Persian messages)
+// ==================================================
+class AppError extends Error {
+  constructor(code, message) { super(message); this.code = code; }
+}
+
+const SERVER_MSG = {
+  origin_not_allowed: 'این صفحه اجازه‌ی استفاده از ورود با اثر انگشت را ندارد.',
+  challenge_not_found_or_expired: 'زمان تأیید تمام شد. دوباره تلاش کن.',
+  credential_not_found: 'این اثر انگشت در سایت ثبت نشده است. با کد بازیابی وارد شو یا ثبت‌نام جدید بزن.',
+  invalid_token: 'وارد نشده‌ای. اول وارد شو.',
+  no_token: 'وارد نشده‌ای. اول وارد شو.',
+  invalid_recovery_code: 'کد بازیابی درست نیست. با دقت دوباره وارد کن.',
+  credential_already_registered: 'این اثر انگشت قبلاً ثبت شده است.',
+  account_disabled: 'این حساب غیرفعال شده است.',
+  server_error: 'مشکلی در سرور پیش آمد. کمی بعد دوباره تلاش کن.',
+};
+
+function friendlyError(e) {
+  if (e instanceof AppError) return e.message;
+  const name = (e && e.name) || '';
+  const msg = String((e && e.message) || '');
+  const low = msg.toLowerCase();
+
+  if (low.includes('allowcredentials')) {
+    return 'این دستگاه اثر انگشت این سایت را به خاطر نمی‌آورد. با «ورود با کد بازیابی» وارد شو و بعد «افزودن این دستگاه به حساب» را بزن.';
+  }
+  if (low.includes('credential manager')) {
+    return 'گوشی نتوانست پنجره‌ی اثر انگشت را باز کند. مطمئن شو قفل صفحه (اثر انگشت، الگو یا رمز) فعال است، به حساب گوگل وارد شده‌ای و Google Play Services و مرورگر به‌روزند. اگر نشد، همین صفحه را با Chrome امتحان کن.';
+  }
+  switch (name) {
+    case 'NotAllowedError':
+      return 'تأیید اثر انگشت لغو شد یا زمانش تمام شد. دوباره امتحان کن و سریع‌تر تأیید کن.';
+    case 'InvalidStateError':
+      return 'این دستگاه قبلاً به این حساب اضافه شده است.';
+    case 'NotSupportedError':
+      return 'این مرورگر یا دستگاه از اثر انگشت پشتیبانی نمی‌کند. از Chrome به‌روز استفاده کن یا با کد بازیابی وارد شو.';
+    case 'SecurityError':
+      return 'این آدرس اجازه‌ی استفاده از اثر انگشت را ندارد. سایت را از آدرس اصلی‌اش باز کن.';
+    case 'AbortError':
+      return 'عملیات قطع شد. دوباره امتحان کن.';
+    case 'UnknownError':
+      return 'خطای ناشناخته از گوشی. قفل صفحه را چک کن و دوباره امتحان کن.';
+  }
+  return 'مشکلی پیش آمد: ' + msg;
+}
+
+// ==================================================
+// 4) API
+// ==================================================
+async function api(path, method, body, auth) {
+  const headers = {};
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  if (auth) headers['Authorization'] = 'Bearer ' + (lsGet(LS_TOKEN) || '');
+
+  let res;
+  try {
+    res = await fetch(API + path, {
+      method: method || 'GET',
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+  } catch (e) {
+    throw new AppError('network', 'اتصال به سرور برقرار نشد. اینترنت را چک کن. اگر روی وای‌فای هستی با دیتای موبایل یا VPN امتحان کن.');
   }
 
-  function showUser(displayId){
-    if (displayId){
-      $('userId').textContent = displayId;
-      $('userBox').classList.add('show');
-    } else {
-      $('userBox').classList.remove('show');
-    }
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+
+  if (!res.ok || !data || data.success === false) {
+    const code = (data && data.error) || ('http_' + res.status);
+    const short = String(code).split(':')[0];
+    throw new AppError(short, (data && data.message) || SERVER_MSG[short] || ('خطا از سرور: ' + short));
   }
+  return data;
+}
 
-  // ===== WebAuthn helpers =====
-  function b64uDecode(str){
-    str = String(str).replace(/-/g,'+').replace(/_/g,'/');
-    while (str.length % 4) str += '=';
-    var bin = atob(str);
-    var buf = new Uint8Array(bin.length);
-    for (var i=0;i<bin.length;i++) buf[i] = bin.charCodeAt(i);
-    return buf;
+// ==================================================
+// 5) WEBAUTHN (no external library)
+// ==================================================
+function b64uToBuf(s) {
+  s = String(s).replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  const bin = atob(s);
+  const b = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+  return b.buffer;
+}
+function bufToB64u(buf) {
+  const b = new Uint8Array(buf);
+  let s = '';
+  for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function checkSupport() {
+  if (!window.PublicKeyCredential || !navigator.credentials) {
+    throw new AppError('unsupported', 'این مرورگر از اثر انگشت پشتیبانی نمی‌کند. از Chrome به‌روز استفاده کن یا با کد بازیابی وارد شو.');
   }
-
-  function b64uEncode(buf){
-    var bytes = new Uint8Array(buf);
-    var s = '';
-    for (var i=0;i<bytes.length;i++) s += String.fromCharCode(bytes[i]);
-    return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  if (!window.isSecureContext) {
+    throw new AppError('insecure', 'این صفحه باید با آدرس https باز شود.');
   }
+}
 
-  // ===== ثبت‌نام =====
-  $('registerBtn').onclick = async function(){
-    log.classList.add('show');
-    logLine('=== شروع ثبت‌نام ===','info');
-    var btn = this;
-    btn.disabled = true;
-
-    try {
-      // 1. begin
-      logLine('1) درخواست چالش...','info');
-      var res = await fetch(API + '/api/auth/register/begin', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: '{}'
-      });
-      var data = await res.json();
-      if (!data.success){ logLine('خطا: ' + JSON.stringify(data),'err'); btn.disabled=false; return; }
-      logLine('2) چالش دریافت شد: ' + data.challengeId,'ok');
-
-      // 2. decode challenge
-      var opts = data.options;
-      opts.challenge = b64uDecode(opts.challenge);
-      opts.user.id = b64uDecode(opts.user.id);
-
-      // 3. create credential
-      logLine('3) درخواست اثر انگشت...','info');
-      var credential = await navigator.credentials.create({ publicKey: opts });
-      logLine('4) اثر انگشت تایید شد ✅','ok');
-
-      // 4. prepare for sending
-      var credForSend = {
-        id: credential.id,
-        rawId: b64uEncode(credential.rawId),
-        type: credential.type,
-        response: {
-          attestationObject: b64uEncode(credential.response.attestationObject),
-          clientDataJSON: b64uEncode(credential.response.clientDataJSON),
-        },
-        clientExtensionResults: credential.getClientExtensionResults ? credential.getClientExtensionResults() : {},
-      };
-      // transports
-      if (credential.response.getTransports){
-        credForSend.response.transports = credential.response.getTransports();
-      }
-
-      // 5. finish
-      logLine('5) ارسال به سرور...','info');
-      var res2 = await fetch(API + '/api/auth/register/finish', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ challengeId: data.challengeId, credential: credForSend })
-      });
-      var data2 = await res2.json();
-      if (!data2.success){ logLine('خطا: ' + JSON.stringify(data2),'err'); btn.disabled=false; return; }
-
-      localStorage.setItem(TOKEN_KEY, data2.token);
-      logLine('6) ثبت‌نام موفق ✅','ok');
-      logLine('شناسه شما: ' + data2.user.displayId,'ok');
-      showUser(data2.user.displayId);
-
-    } catch(e){
-      logLine('خطا: ' + e.message,'err');
-    }
-
-    btn.disabled = false;
+async function createCredential(options) {
+  checkSupport();
+  const pk = JSON.parse(JSON.stringify(options));
+  pk.challenge = b64uToBuf(pk.challenge);
+  pk.user.id = b64uToBuf(pk.user.id);
+  if (pk.excludeCredentials && pk.excludeCredentials.length) {
+    pk.excludeCredentials = pk.excludeCredentials.map((c) => ({ ...c, id: b64uToBuf(c.id) }));
+  } else {
+    delete pk.excludeCredentials;
+  }
+  const cred = await navigator.credentials.create({ publicKey: pk });
+  if (!cred) throw new AppError('no_credential', 'اثر انگشت ساخته نشد. دوباره تلاش کن.');
+  const r = cred.response;
+  return {
+    id: cred.id,
+    rawId: bufToB64u(cred.rawId),
+    type: cred.type,
+    response: {
+      clientDataJSON: bufToB64u(r.clientDataJSON),
+      attestationObject: bufToB64u(r.attestationObject),
+      transports: r.getTransports ? r.getTransports() : [],
+    },
+    clientExtensionResults: cred.getClientExtensionResults ? cred.getClientExtensionResults() : {},
+    authenticatorAttachment: cred.authenticatorAttachment || undefined,
   };
+}
 
-  // ===== ورود =====
-  $('loginBtn').onclick = async function(){
-    log.classList.add('show');
-    logLine('=== شروع ورود ===','info');
-    var btn = this;
-    btn.disabled = true;
-
-    try {
-      logLine('1) درخواست چالش...','info');
-      var res = await fetch(API + '/api/auth/login/begin', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: '{}'
-      });
-      var data = await res.json();
-      if (!data.success){ logLine('خطا: ' + JSON.stringify(data),'err'); btn.disabled=false; return; }
-      logLine('2) چالش دریافت شد','ok');
-
-      var opts = data.options;
-      opts.challenge = b64uDecode(opts.challenge);
-      if (opts.allowCredentials){
-        opts.allowCredentials = opts.allowCredentials.map(function(c){
-          return { id: b64uDecode(c.id), type: c.type, transports: c.transports };
-        });
-      }
-
-      logLine('3) درخواست اثر انگشت...','info');
-      var assertion = await navigator.credentials.get({ publicKey: opts });
-      logLine('4) اثر انگشت تایید شد ✅','ok');
-
-      var credForSend = {
-        id: assertion.id,
-        rawId: b64uEncode(assertion.rawId),
-        type: assertion.type,
-        response: {
-          authenticatorData: b64uEncode(assertion.response.authenticatorData),
-          clientDataJSON: b64uEncode(assertion.response.clientDataJSON),
-          signature: b64uEncode(assertion.response.signature),
-          userHandle: assertion.response.userHandle ? b64uEncode(assertion.response.userHandle) : null,
-        },
-        clientExtensionResults: assertion.getClientExtensionResults ? assertion.getClientExtensionResults() : {},
-      };
-
-      logLine('5) ارسال به سرور...','info');
-      var res2 = await fetch(API + '/api/auth/login/finish', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ challengeId: data.challengeId, credential: credForSend })
-      });
-      var data2 = await res2.json();
-      if (!data2.success){ logLine('خطا: ' + JSON.stringify(data2),'err'); btn.disabled=false; return; }
-
-      localStorage.setItem(TOKEN_KEY, data2.token);
-      logLine('6) ورود موفق ✅','ok');
-      logLine('شناسه شما: ' + data2.user.displayId,'ok');
-      showUser(data2.user.displayId);
-
-    } catch(e){
-      logLine('خطا: ' + e.message,'err');
-    }
-
-    btn.disabled = false;
+async function getCredential(options) {
+  checkSupport();
+  const pk = JSON.parse(JSON.stringify(options));
+  pk.challenge = b64uToBuf(pk.challenge);
+  if (pk.allowCredentials && pk.allowCredentials.length) {
+    pk.allowCredentials = pk.allowCredentials.map((c) => ({ ...c, id: b64uToBuf(c.id) }));
+  } else {
+    delete pk.allowCredentials;
+  }
+  const cred = await navigator.credentials.get({ publicKey: pk });
+  if (!cred) throw new AppError('no_credential', 'اثر انگشت دریافت نشد. دوباره تلاش کن.');
+  const r = cred.response;
+  return {
+    id: cred.id,
+    rawId: bufToB64u(cred.rawId),
+    type: cred.type,
+    response: {
+      authenticatorData: bufToB64u(r.authenticatorData),
+      clientDataJSON: bufToB64u(r.clientDataJSON),
+      signature: bufToB64u(r.signature),
+      userHandle: r.userHandle ? bufToB64u(r.userHandle) : undefined,
+    },
+    clientExtensionResults: cred.getClientExtensionResults ? cred.getClientExtensionResults() : {},
+    authenticatorAttachment: cred.authenticatorAttachment || undefined,
   };
+}
 
-  // ===== بررسی وضعیت =====
-  $('checkBtn').onclick = async function(){
-    log.classList.add('show');
-    var token = localStorage.getItem(TOKEN_KEY);
-    if (!token){ logLine('توکنی موجود نیست','err'); return; }
+// ==================================================
+// 6) FLOWS
+// ==================================================
+async function doRegister() {
+  log('=== شروع ثبت‌نام ===');
+  log('1) درخواست چالش...');
+  const b = await api('/api/auth/register/begin', 'POST', {});
+  log('2) چالش دریافت شد', 'ok');
+  log('3) درخواست اثر انگشت...');
+  const cred = await createCredential(b.options);
+  log('4) اثر انگشت تایید شد ✅', 'ok');
+  log('5) ارسال به سرور...');
+  const f = await api('/api/auth/register/finish', 'POST', { challengeId: b.challengeId, credential: cred });
+  lsSet(LS_TOKEN, f.token);
+  rememberCredential(cred.id);
+  log('6) ثبت‌نام موفق ✅', 'ok');
+  log('شناسه شما: ' + f.user.displayId, 'ok');
+  showUser(f.user.displayId);
+  showRecovery(f.recoveryCode);
+}
 
-    logLine('=== بررسی وضعیت ===','info');
-    try {
-      var res = await fetch(API + '/api/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      var data = await res.json();
-      if (!data.success){ logLine('خطا: ' + JSON.stringify(data),'err'); showUser(null); return; }
-      logLine('شما وارد شدید به عنوان: ' + data.user.displayId,'ok');
-      showUser(data.user.displayId);
-    } catch(e){
-      logLine('خطا: ' + e.message,'err');
-    }
-  };
+async function doLogin() {
+  log('=== شروع ورود ===');
+  const ids = getSavedIds();
+  log('1) درخواست چالش...');
+  const b = await api('/api/auth/login/begin', 'POST', { credentialIds: ids });
+  log('2) چالش دریافت شد', 'ok');
+  log('3) درخواست اثر انگشت...');
+  const cred = await getCredential(b.options);
+  log('4) اثر انگشت تایید شد ✅', 'ok');
+  log('5) ارسال به سرور...');
+  const f = await api('/api/auth/login/finish', 'POST', { challengeId: b.challengeId, credential: cred });
+  lsSet(LS_TOKEN, f.token);
+  rememberCredential(cred.id);
+  log('6) ورود موفق ✅', 'ok');
+  showUser(f.user.displayId);
+}
 
-  // ===== خروج =====
-  $('logoutBtn').onclick = async function(){
-    var token = localStorage.getItem(TOKEN_KEY);
-    if (!token){ logLine('توکنی موجود نیست','err'); return; }
+async function doMe() {
+  log('=== بررسی وضعیت ===');
+  const d = await api('/api/auth/me', 'GET', undefined, true);
+  log('شما وارد شدید به عنوان: ' + d.user.displayId, 'ok');
+  log('تعداد اثر انگشت‌های ثبت‌شده: ' + (d.user.credentialCount || 0));
+  if (!d.user.hasRecovery) log('⚠️ کد بازیابی نداری. «ساخت کد بازیابی جدید» را بزن.', 'warn');
+  showUser(d.user.displayId);
+}
 
-    try {
-      await fetch(API + '/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-    } catch(e){}
+async function doLogout() {
+  try { await api('/api/auth/logout', 'POST', {}, true); } catch (e) {}
+  lsDel(LS_TOKEN);
+  hideUser();
+  $('recoveryBox').hidden = true;
+  log('خارج شدید ✅', 'ok');
+}
 
-    localStorage.removeItem(TOKEN_KEY);
-    showUser(null);
-    logLine('خارج شدید ✅','ok');
-  };
+async function doRecoveryLogin() {
+  const code = $('recInput').value.trim();
+  if (!code) throw new AppError('empty', 'اول کد بازیابی را وارد کن.');
+  log('=== ورود با کد بازیابی ===');
+  const f = await api('/api/auth/recovery/login', 'POST', { code });
+  lsSet(LS_TOKEN, f.token);
+  $('recInput').value = '';
+  log('ورود موفق ✅', 'ok');
+  showUser(f.user.displayId);
+  showRecovery(f.recoveryCode, 'کد قبلی باطل شد. این کد بازیابی جدید توست؛ حتماً ذخیره‌اش کن.');
+  log('برای اینکه دفعه‌ی بعد با اثر انگشت وارد شوی، «افزودن این دستگاه به حساب» را بزن.');
+}
 
-  // ===== بررسی اولیه =====
-  (async function init(){
-    var token = localStorage.getItem(TOKEN_KEY);
-    if (!token) return;
-    try {
-      var res = await fetch(API + '/api/auth/me', {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      var data = await res.json();
-      if (data.success){
-        logLine('شما وارد هستید: ' + data.user.displayId,'ok');
-        showUser(data.user.displayId);
-      }
-    } catch(e){}
-  })();
+async function doAddDevice() {
+  log('=== افزودن این دستگاه ===');
+  log('1) درخواست چالش...');
+  const b = await api('/api/auth/credential/add/begin', 'POST', {}, true);
+  log('2) چالش دریافت شد', 'ok');
+  log('3) درخواست اثر انگشت...');
+  const cred = await createCredential(b.options);
+  log('4) اثر انگشت تایید شد ✅', 'ok');
+  log('5) ارسال به سرور...');
+  const f = await api('/api/auth/credential/add/finish', 'POST', { challengeId: b.challengeId, credential: cred }, true);
+  rememberCredential(cred.id);
+  log('6) این دستگاه به حساب اضافه شد ✅ (تعداد: ' + f.credentialCount + ')', 'ok');
+}
 
+async function doNewRecovery() {
+  log('=== ساخت کد بازیابی جدید ===');
+  const f = await api('/api/auth/recovery/regenerate', 'POST', {}, true);
+  showRecovery(f.recoveryCode, 'کد قبلی باطل شد. این کد جدید توست؛ حتماً ذخیره‌اش کن.');
+}
+
+// ==================================================
+// 7) EVENTS + STARTUP
+// ==================================================
+$('btnRegister').addEventListener('click', () => run(doRegister));
+$('btnLogin').addEventListener('click', () => run(doLogin));
+$('btnMe').addEventListener('click', () => run(doMe));
+$('btnLogout').addEventListener('click', () => run(doLogout));
+$('btnRecLogin').addEventListener('click', () => run(doRecoveryLogin));
+$('btnAddDevice').addEventListener('click', () => run(doAddDevice));
+$('btnNewRecovery').addEventListener('click', () => run(doNewRecovery));
+$('btnCopyRec').addEventListener('click', async () => {
+  const ok = await copyText($('recCode').textContent);
+  log(ok ? 'کد بازیابی کپی شد ✅' : 'کپی نشد. کد را با دست انتخاب و کپی کن.', ok ? 'ok' : 'warn');
+});
+
+// silent status check if a token is saved
+(async function () {
+  if (!lsGet(LS_TOKEN)) return;
+  try {
+    const d = await api('/api/auth/me', 'GET', undefined, true);
+    showUser(d.user.displayId);
+  } catch (e) {
+    lsDel(LS_TOKEN);
+  }
 })();
 </script>
 </body>
