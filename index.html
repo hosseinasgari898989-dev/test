@@ -2941,7 +2941,7 @@ async function checkUserComment(){
   const userId = getUserID();
   try {
     const fingerprint = getFingerprint();
-    const res = await fetch(API_BASE + '/api/comments/check/' + encodeURIComponent(userId) + '?fp=' + encodeURIComponent(fingerprint), { headers: authHeaders(), cache: 'no-store' });
+    const res = await fetch(API_BASE + '/api/comments/check?fp=' + encodeURIComponent(fingerprint), { headers: authHeaders(), cache: 'no-store' });
     const data = await res.json();
 
     // چک بن کاربر
@@ -4379,8 +4379,7 @@ updateFloatingUI();
   async function loadMyTickets() {
     const fa = currentLang === 'fa';
     try {
-      const userId = getUserID();
-      const res = await fetch(API_BASE + '/api/reports/by-user/' + encodeURIComponent(userId), { headers: authHeaders(), cache: 'no-store' });
+      const res = await fetch(API_BASE + '/api/reports/by-user', { headers: authHeaders(), cache: 'no-store' });
       const data = await res.json();
       if (!data.success || !data.reports || !data.reports.length) {
         myTicketsList.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0;">' + (fa ? 'هنوز تیکتی نفرستادی' : "You haven't sent any tickets yet") + '</p>';
