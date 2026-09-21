@@ -1187,6 +1187,7 @@ body.tb-small .topbar .actions>button#authBtn[id]{min-width:62px!important;font-
     <button type="button" id="agCopy"><span class="gx" data-fa="📋 کپی" data-en="📋 Copy">📋 کپی</span></button>
    </div>
    <div class="agWarn" id="agWarn"><span class="gx" data-fa="⚠️ این کد رو جای امن ذخیره کن. اگه گم شد، با پشتیبانی تماس بگیر" data-en="⚠️ Keep this code somewhere safe. If you lose it, contact support">⚠️ این کد رو جای امن ذخیره کن. اگه گم شد، با پشتیبانی تماس بگیر</span></div>
+   <button type="button" class="agBtn" id="agAddDevice"><span class="gx" data-fa="➕ افزودن دستگاه جدید" data-en="➕ Add this device">➕ افزودن دستگاه جدید</span></button>
    <button type="button" class="agBtn primary" id="agDoneGo"><span class="gx" data-fa="✅ ذخیره کردم، ورود به سایت" data-en="✅ Saved it, enter the site">✅ ذخیره کردم، ورود به سایت</span></button>
   </div>
   <div class="agErr" id="agErr" role="alert"></div>
@@ -1240,7 +1241,10 @@ var ERRS={
   credential_already_registered:['این اثر انگشت قبلاً ثبت شده. اگه صاحبش تو هستی، با کد بازیابی وارد شو','This fingerprint is already registered. If it is yours, sign in with your recovery code'],
   invalid_recovery_code:['کد بازیابی درست نیست','The recovery code is not valid'],
   not_verified:['تأیید اثر انگشت انجام نشد','Fingerprint verification failed'],
-  origin_not_allowed:['این آدرس اجازه‌ی استفاده از اثر انگشت رو نداره','This address is not allowed to use fingerprint login']
+  origin_not_allowed:['این آدرس اجازه‌ی استفاده از اثر انگشت رو نداره','This address is not allowed to use fingerprint login'],
+  registration_closed:['ثبت‌نام حساب جدید بسته است. با حساب موجود وارد شو و دستگاه جدید را اضافه کن','New account registration is closed. Sign in to your existing account and add a device'],
+  rate_limited:['تعداد تلاش‌ها زیاد است. چند دقیقه بعد دوباره امتحان کن','Too many attempts. Please try again later'],
+  not_logged_in:['ابتدا وارد حساب شو','Please sign in first']
 };
 function errMsg(j){
   if(j&&j.error&&ERRS[j.error]&&lang()==='en')return ERRS[j.error][1];
@@ -1393,6 +1397,25 @@ function doRecovery(){
   if(code.replace(/-/g,'').length<10)throw {error:'invalid_recovery_code'};
   return api('POST','/api/auth/recovery/login',{code:code}).then(function(f){if(!f.success)throw f;saveSession(f);return f;});
 }
+function doAddCredential(){
+  needWA();
+  var token=lsGet(KT);
+  if(!token)throw {error:'not_logged_in'};
+  return api('POST','/api/auth/credential/add/begin',{},token).then(function(b){
+    if(!b.success)throw b;
+    return navigator.credentials.create({publicKey:toCreate(b.options)}).then(function(c){
+      if(!c)throw {error:'not_verified'};
+      return api('POST','/api/auth/credential/add/finish',{
+        challengeId:b.challengeId,
+        credential:serReg(c)
+      },token).then(function(f){
+        if(!f.success)throw f;
+        addCredId(c.id);
+        return f;
+      });
+    });
+  });
+}
 function fmtCode(v){
   v=String(v).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,25);
   return v.replace(/(.{5})(?=.)/g,'$1-');
@@ -1439,6 +1462,13 @@ function init(){
   $('agRecLink').onclick=function(){view('recovery');setTimeout(function(){try{$('agCodeIn').focus();}catch(e){}},50);};
   $('agRecBack').onclick=function(){view('main');};
   $('agRecGo').onclick=function(){run(this,doRecovery,function(f){showDone(f,T('✅ وارد شدی!','✅ Signed in!'));});};
+  $('agAddDevice').onclick=function(){
+    run(this,doAddCredential,function(){
+      $('agDoneT').textContent=T('✅ دستگاه جدید اضافه شد!','✅ New device added!');
+      $('agCodeBox').style.display='none';
+      $('agWarn').style.display='none';
+    });
+  };
   $('agCodeIn').addEventListener('input',function(){var v=fmtCode(this.value);if(this.value!==v)this.value=v;});
   $('agCodeIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('agRecGo').click();});
   $('agCopy').onclick=function(){copyText($('agCodeTxt').textContent,this);};
@@ -2014,6 +2044,19 @@ const MAX_EDITS = 3;
 const storageGet = (key, fallback = null) => { try { const v = localStorage.getItem(key); return v === null ? fallback : v; } catch { return fallback; } };
 const storageSet = (key, value) => { try { localStorage.setItem(key, value); } catch {} };
 const storageRemove = key => { try { localStorage.removeItem(key); } catch {} };
+const getPoppyAuthToken = () => storageGet('poppy_auth_token', '');
+const authJsonHeaders = () => {
+  const h = { 'Content-Type': 'application/json' };
+  const t = getPoppyAuthToken();
+  if (t) h.Authorization = 'Bearer ' + t;
+  return h;
+};
+const authHeaders = () => {
+  const h = {};
+  const t = getPoppyAuthToken();
+  if (t) h.Authorization = 'Bearer ' + t;
+  return h;
+};
 const MUSIC_URL = 'https://raw.githubusercontent.com/hosseinasgari898989-dev/images/main/The%20Hour%20of%20Joy.m4a';
 function showToast(msg, type) {
   const box = $('toastBox');
@@ -2898,7 +2941,7 @@ async function checkUserComment(){
   const userId = getUserID();
   try {
     const fingerprint = getFingerprint();
-    const res = await fetch(API_BASE + '/api/comments/check/' + userId + '?fp=' + encodeURIComponent(fingerprint));
+    const res = await fetch(API_BASE + '/api/comments/check?fp=' + encodeURIComponent(fingerprint), { headers: authHeaders(), cache: 'no-store' });
     const data = await res.json();
 
     // چک بن کاربر
@@ -3008,7 +3051,7 @@ $('submitComment').onclick = async () => {
   }
 
   try {
-    const res = await fetch(API_BASE + '/api/comments', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, comment, userId, fingerprint: getFingerprint() }) });
+    const res = await fetch(API_BASE + '/api/comments', { method:'POST', headers:authJsonHeaders(), body: JSON.stringify({ name, comment, fingerprint: getFingerprint() }) });
     const data = await res.json();
     if (!data.success) {
       // FIX: حالت‌های update_mode و server_offline پیام اختصاصی سرور رو نشون بدن
@@ -3041,7 +3084,7 @@ $('saveEdit').onclick = async () => {
   const userId = getUserID();
   if (!newComment) { showToast('متن نظر نمی‌تواند خالی باشد.', 'error'); return; }
   try {
-    const res = await fetch(API_BASE + '/api/comments/' + userCommentId, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ comment: newComment, userId, fingerprint: getFingerprint() }) });
+    const res = await fetch(API_BASE + '/api/comments/' + userCommentId, { method:'PUT', headers:authJsonHeaders(), body: JSON.stringify({ comment: newComment, fingerprint: getFingerprint() }) });
     const data = await res.json();
     if (!data.success) { showToast(data.error, 'error'); return; }
     setEditCount(getEditCount() + 1);
@@ -3056,7 +3099,7 @@ $('deleteBtn').onclick = async () => {
   if (!confirmed) return;
   const userId = getUserID();
   try {
-    const res = await fetch(API_BASE + '/api/comments/' + userCommentId, { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ userId, fingerprint: getFingerprint() }) });
+    const res = await fetch(API_BASE + '/api/comments/' + userCommentId, { method:'DELETE', headers:authJsonHeaders(), body: JSON.stringify({ fingerprint: getFingerprint() }) });
     const data = await res.json();
     if (!data.success) { showToast(data.error, 'error'); return; }
     setEditCount(0);
@@ -3104,12 +3147,16 @@ const AI_ERROR_MESSAGES = {
     ai_error: '⚠️ پاپی موقتاً نتونست جواب بده. لطفاً دوباره امتحان کن.',
     rate_limit: '⏳ یکم سریع پیام فرستادی! چند لحظه صبر کن و دوباره امتحان کن.',
     invalid_input: '❌ این پیام قابل پردازش نبود. لطفاً به شکل دیگه‌ای بنویسش.',
+    unauthorized: '🔐 برای استفاده از این بخش باید وارد حسابت شوی.',
+    quota_unavailable: '⚠️ بررسی سهمیه موقتاً در دسترس نیست. دوباره امتحان کن.',
     default: '⚠️ مشکلی پیش اومد. لطفاً دوباره امتحان کن.'
   },
   en: {
     ai_error: "⚠️ Poppy couldn't answer that just now. Please try again.",
     rate_limit: '⏳ Sending a bit fast — wait a moment and try again.',
     invalid_input: "❌ That message couldn't be processed. Try rephrasing it.",
+    unauthorized: '🔐 Please sign in to use this feature.',
+    quota_unavailable: '⚠️ Quota service is temporarily unavailable. Please try again.',
     default: '⚠️ Something went wrong. Please try again.'
   }
 };
@@ -3242,7 +3289,7 @@ function updateAiBadge(remaining, limit, fromServer) {
 
 async function fetchAiStatus() {
   try {
-    const res = await fetch(AI_CHAT_STATUS + '?userId=' + encodeURIComponent(getUserID()));
+    const res = await fetch(AI_CHAT_STATUS, { headers: authHeaders(), cache: 'no-store' });
     const data = await res.json();
     if (data.success) updateAiBadge(data.remaining, data.limit, true);
   } catch (e) { console.log('status fetch failed'); }
@@ -3359,12 +3406,10 @@ async function sendAiMessage() {
     const sendHistory = newHistory.slice(-AI_MAX_SEND);
     const res = await fetch(AI_CHAT_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: authJsonHeaders(),
       body: JSON.stringify({
         message: raw,
-        history: sendHistory.slice(0, -1),
-        userId: getUserID(),
-        fingerprint: getFingerprint()
+        history: sendHistory.slice(0, -1)
       })
     });
     const data = await res.json();
@@ -4169,7 +4214,7 @@ updateFloatingUI();
     try {
       const userId = getUserID();
       const fingerprint = getFingerprint();
-      const res = await fetch(API_BASE + '/api/comments/check/' + userId + '?fp=' + encodeURIComponent(fingerprint), {cache: 'no-store'});
+      const res = await fetch(API_BASE + '/api/comments/check/' + encodeURIComponent(userId) + '?fp=' + encodeURIComponent(fingerprint), {headers: authHeaders(), cache: 'no-store'});
       const data = await res.json();
       if (data && data.banned === true && (data.ban_type === 'site' || data.ban_type === 'all')) {
         saveBlock('banned', data);
@@ -4305,8 +4350,8 @@ updateFloatingUI();
     try {
       const res = await fetch(API_BASE + '/api/reports', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, userName, type, subject, message, fingerprint: getFingerprint() })
+        headers: authJsonHeaders(),
+        body: JSON.stringify({ type, subject, message, fingerprint: getFingerprint() })
       });
       const data = await res.json();
       if (!data.success) {
@@ -4334,8 +4379,7 @@ updateFloatingUI();
   async function loadMyTickets() {
     const fa = currentLang === 'fa';
     try {
-      const userId = getUserID();
-      const res = await fetch(API_BASE + '/api/reports/by-user/' + userId);
+      const res = await fetch(API_BASE + '/api/reports/by-user', { headers: authHeaders(), cache: 'no-store' });
       const data = await res.json();
       if (!data.success || !data.reports || !data.reports.length) {
         myTicketsList.innerHTML = '<p style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0;">' + (fa ? 'هنوز تیکتی نفرستادی' : "You haven't sent any tickets yet") + '</p>';
