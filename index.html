@@ -4214,7 +4214,7 @@ updateFloatingUI();
     try {
       const userId = getUserID();
       const fingerprint = getFingerprint();
-      const res = await fetch(API_BASE + '/api/comments/check/' + userId + '?fp=' + encodeURIComponent(fingerprint), {cache: 'no-store'});
+      const res = await fetch(API_BASE + '/api/comments/check/' + encodeURIComponent(userId) + '?fp=' + encodeURIComponent(fingerprint), {headers: authHeaders(), cache: 'no-store'});
       const data = await res.json();
       if (data && data.banned === true && (data.ban_type === 'site' || data.ban_type === 'all')) {
         saveBlock('banned', data);
