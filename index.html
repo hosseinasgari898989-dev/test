@@ -2039,6 +2039,23 @@ W.PoppyAuth={start:start,skip:skip,openGate:function(){showGate(false);},get log
 
 <script>
 const API_BASE = 'https://poppy-comments-api.hosseinasgari898989.workers.dev';
+const AUTH_ME_API = 'https://poppy-auth-api.hosseinasgari898989.workers.dev/api/auth/me';
+function handleAuthExpired(){
+  try{
+    localStorage.removeItem('poppy_auth_token');
+    localStorage.removeItem('poppy_auth_display');
+    document.documentElement.classList.remove('authg-skip');
+  }catch(e){}
+  try{ location.reload(); }catch(e){}
+}
+(async function validateSavedAuth(){
+  try{
+    const t = getPoppyAuthToken();
+    if(!t) return;
+    const res = await fetch(AUTH_ME_API,{headers:{Authorization:'Bearer '+t},cache:'no-store'});
+    if(res.status===401) handleAuthExpired();
+  }catch(e){}
+})();
 const $ = id => document.getElementById(id);
 const MAX_EDITS = 3;
 const storageGet = (key, fallback = null) => { try { const v = localStorage.getItem(key); return v === null ? fallback : v; } catch { return fallback; } };
@@ -2942,6 +2959,7 @@ async function checkUserComment(){
   try {
     const fingerprint = getFingerprint();
     const res = await fetch(API_BASE + '/api/comments/check?fp=' + encodeURIComponent(fingerprint), { headers: authHeaders(), cache: 'no-store' });
+    if (res.status === 401) { handleAuthExpired(); return; }
     const data = await res.json();
 
     // چک بن کاربر
@@ -3052,6 +3070,7 @@ $('submitComment').onclick = async () => {
 
   try {
     const res = await fetch(API_BASE + '/api/comments', { method:'POST', headers:authJsonHeaders(), body: JSON.stringify({ name, comment, fingerprint: getFingerprint() }) });
+    if (res.status === 401) { handleAuthExpired(); return; }
     const data = await res.json();
     if (!data.success) {
       // FIX: حالت‌های update_mode و server_offline پیام اختصاصی سرور رو نشون بدن
@@ -3148,6 +3167,8 @@ const AI_ERROR_MESSAGES = {
     rate_limit: '⏳ یکم سریع پیام فرستادی! چند لحظه صبر کن و دوباره امتحان کن.',
     invalid_input: '❌ این پیام قابل پردازش نبود. لطفاً به شکل دیگه‌ای بنویسش.',
     unauthorized: '🔐 برای استفاده از این بخش باید وارد حسابت شوی.',
+    ai_disabled: '🌙 هوش مصنوعی فعلاً در دسترس نیست. لطفاً چند دقیقه بعد دوباره امتحان کن.',
+    server_error: '⚠️ سرور هوش مصنوعی موقتاً خطا داده. لطفاً دوباره امتحان کن.',
     quota_unavailable: '⚠️ بررسی سهمیه موقتاً در دسترس نیست. دوباره امتحان کن.',
     default: '⚠️ مشکلی پیش اومد. لطفاً دوباره امتحان کن.'
   },
@@ -3290,6 +3311,7 @@ function updateAiBadge(remaining, limit, fromServer) {
 async function fetchAiStatus() {
   try {
     const res = await fetch(AI_CHAT_STATUS, { headers: authHeaders(), cache: 'no-store' });
+    if (res.status === 401) { handleAuthExpired(); return; }
     const data = await res.json();
     if (data.success) updateAiBadge(data.remaining, data.limit, true);
   } catch (e) { console.log('status fetch failed'); }
@@ -3412,6 +3434,7 @@ async function sendAiMessage() {
         history: sendHistory.slice(0, -1)
       })
     });
+    if (res.status === 401) { hideAiTyping(); handleAuthExpired(); return; }
     const data = await res.json();
     hideAiTyping();
 
@@ -3430,7 +3453,7 @@ async function sendAiMessage() {
       } else {
         const errDiv = document.createElement('div');
         errDiv.className = 'aiMsg error';
-        errDiv.textContent = getAiErrorMessage(data.error);
+        errDiv.textContent = data.message || getAiErrorMessage(data.error);
         $('aiChatMessages').appendChild(errDiv);
       }
       $('aiChatMessages').scrollTop = $('aiChatMessages').scrollHeight;
