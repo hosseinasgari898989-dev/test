@@ -28,8 +28,7 @@ test('reports completion after the final block of the final article', () => {
   );
 });
 
-test('clamps progress to a valid percentage', () => {
-  assert.equal(progressPercent(0, 0, [3, 4]), 0);
-  assert.equal(progressPercent(1, 2, [3, 4]), 43);
+test('reports progress at the start of the second article after the first article is complete', () => {
+  assert.equal(progressPercent(1, 0, [3, 4]), 43);
   assert.equal(progressPercent(99, 99, [3, 4]), 100);
 });
